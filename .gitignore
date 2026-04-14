@@ -1,0 +1,15 @@
+node_modules/
+dist/
+build/
+.env
+*.env.local
+.DS_Store
+*.log
+coverage/
+.nyc_output/
+.claude
+.github
+.claude/settings.local.json
+.eslintrc.json
+.github/workflows/ci.yml
+.prettierrc

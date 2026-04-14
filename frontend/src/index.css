@@ -1,0 +1,128 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 16px;
+  color: #1a1a2e;
+  background: #f8f9fa;
+  line-height: 1.5;
+}
+
+/* ── Auth pages ───────────────────────────────────────────────────────────── */
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+}
+
+.auth-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.auth-card h1 {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #0f3460;
+  letter-spacing: -0.5px;
+}
+
+.auth-card h2 {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #555;
+  margin-top: 0.25rem;
+  margin-bottom: 1.75rem;
+}
+
+/* ── Forms ────────────────────────────────────────────────────────────────── */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #333;
+}
+
+input {
+  padding: 0.6rem 0.85rem;
+  border: 1.5px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+input:focus {
+  border-color: #0f3460;
+}
+
+.error {
+  font-size: 0.8rem;
+  color: #e53e3e;
+}
+
+.alert-error {
+  background: #fff5f5;
+  border: 1px solid #fc8181;
+  border-radius: 6px;
+  padding: 0.6rem 0.85rem;
+  font-size: 0.875rem;
+  color: #c53030;
+  margin-bottom: 0.75rem;
+}
+
+button {
+  display: block;
+  width: 100%;
+  padding: 0.7rem 1rem;
+  background: #0f3460;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  margin-top: 0.5rem;
+}
+
+button:hover:not(:disabled) {
+  background: #16213e;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+a {
+  color: #0f3460;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+a:hover {
+  text-decoration: underline;
+}
