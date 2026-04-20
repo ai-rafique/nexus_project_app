@@ -177,6 +177,11 @@ Stripped-down, clean interface showing:
 - **Monitoring**: Sentry (errors), Prometheus + Grafana (metrics) — optional
 - **Environment**: `.env` based config with envalid validation
 
+## Docker Notes
+- Frontend: nexus_project_app-frontend image, uses named volume `nexus_frontend_data` for /app
+- Backend: nexus_project_app-backend image, no named volume — node_modules live in container layer
+- If frontend is crash-looping, use `docker run --rm -v nexus_frontend_data:/app` to install deps
+- If backend needs packages: exec directly into running container
 ---
 
 ## 5. MongoDB Schema Design

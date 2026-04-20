@@ -13,3 +13,5 @@ coverage/
 .eslintrc.json
 .github/workflows/ci.yml
 .prettierrc
+backend/node_modules/
+frontend/node_modules/

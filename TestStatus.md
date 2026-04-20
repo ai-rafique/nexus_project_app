@@ -47,7 +47,56 @@
 ---
 
 ## Phase 1 — Projects & Requirements
-**Status: PENDING**
+**Status: COMPLETE — 34/34 passed**
+**Date: 2026-04-20**
+**Test file:** `backend/tests/phase1.mjs`
+**Run command:** `MSYS_NO_PATHCONV=1 docker exec nexus_backend node /app/tests/phase1.mjs`
+
+### Test Cases
+
+| ID | Section | Description | Expected | Result |
+|----|---------|-------------|----------|--------|
+| T01 | Projects — CRUD | POST /api/projects with valid payload | 201 | PASS |
+| T02 | Projects — CRUD | Created project has _id | field present | PASS |
+| T03 | Projects — CRUD | GET /api/projects lists creator's project | 200 + found | PASS |
+| T04 | Projects — CRUD | GET /api/projects/:id returns correct project | 200 | PASS |
+| T05 | Projects — CRUD | PATCH /api/projects/:id updates status | 200 + correct value | PASS |
+| T06 | Projects — CRUD | PATCH /api/projects/:id updates currentPhase | 200 + correct value | PASS |
+| T07 | Projects — CRUD | Non-member GET returns 403 | 403 | PASS |
+| T08 | Projects — CRUD | Missing clientName returns 400 | 400 | PASS |
+| T09 | Projects — Members | POST /api/projects/:id/members adds member | 200 | PASS |
+| T10 | Projects — Members | Newly added member can access project | 200 | PASS |
+| T11 | Projects — Members | Duplicate member returns 409 | 409 | PASS |
+| T12 | Projects — Members | Project roster has ≥ 2 members after add | ≥ 2 | PASS |
+| T13 | Requirements — CRUD | POST /requirements returns 201 | 201 | PASS |
+| T14 | Requirements — CRUD | Requirement has _id | field present | PASS |
+| T15 | Requirements — CRUD | Requirement has reqId (REQ-xxx) | field present | PASS |
+| T16 | Requirements — CRUD | Second requirement gets unique incremented reqId | unique | PASS |
+| T17 | Requirements — CRUD | GET /requirements lists all requirements | 200 + ≥ 2 | PASS |
+| T18 | Requirements — CRUD | GET /requirements/:reqId returns correct item | 200 | PASS |
+| T19 | Requirements — CRUD | Filter by status=draft works | all draft | PASS |
+| T20 | Requirements — CRUD | Filter by priority=critical works | all critical | PASS |
+| T21 | Requirements — CRUD | Search by title works | ≥ 1 result | PASS |
+| T22 | Requirements — Versioning | PATCH increments version to 2 | version=2 | PASS |
+| T23 | Requirements — Versioning | Version history has ≥ 1 entry after update | ≥ 1 entry | PASS |
+| T24 | Requirements — Versioning | Second PATCH increments version to 3 | version=3 | PASS |
+| T25 | Requirements — Comments | POST /comments returns 201 | 201 | PASS |
+| T26 | Requirements — Comments | Member can add comment | 201 | PASS |
+| T27 | Requirements — Comments | GET requirement shows ≥ 2 comments | ≥ 2 | PASS |
+| T28 | Requirements — Comments | Empty comment returns 400 | 400 | PASS |
+| T29 | Requirements — Soft Delete | DELETE returns 204 | 204 | PASS |
+| T30 | Requirements — Soft Delete | Deprecated req excluded from draft filter | not visible | PASS |
+| T31 | Requirements — CSV Import | Import 3-row CSV returns 201 + imported=3 | 201 | PASS |
+| T32 | Requirements — CSV Import | Imported requirements appear in list | ≥ 4 total | PASS |
+| T33 | Requirements — Access Control | Non-member cannot list requirements | 403 | PASS |
+| T34 | Requirements — Access Control | Non-member cannot create requirement | 403 | PASS |
+
+### Bugs Found & Fixed
+| Bug | Fix |
+|-----|-----|
+| `@radix-ui/react-badge` does not exist on npm | Removed from `package.json`; Badge is a plain styled div |
+| `isMember()` check failed after Mongoose populate (populated `userId` is a doc, not ObjectId) | Added `resolveId()` helper to extract `._id` from populated docs |
+| Dockerfiles used `npm ci` requiring synced lock file — failed when packages added | Changed to `npm install` in both Dockerfiles |
 
 ---
 

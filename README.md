@@ -151,13 +151,12 @@ It unifies **requirements, design, traceability, testing, verification, and deli
 
 ## 🗺️ Roadmap
 
-* [x] Core Architecture Design
-* [ ] Auth & Project Module
-* [ ] Requirements Engine
-* [ ] SRS Builder
-* [ ] Traceability Graph
-* [ ] Testing & FAT Modules
-* [ ] Production Deployment
+* [x] Phase 0 — Foundation: Docker, CI, MongoDB, Auth (JWT + 2FA), User & Project models, React base app
+* [x] Phase 1 — Projects & Requirements: full CRUD, member management, versioning, comments, CSV import, Tailwind + Radix UI design system
+* [ ] Phase 2 — Documents & Approvals: SRS builder, review/sign-off workflow, PDF/DOCX export, client portal
+* [ ] Phase 3 — Traceability (RTM): trace links, interactive graph (React Flow), coverage metrics, orphan detection
+* [ ] Phase 4 — SDS, Testing & FAT: design spec builder, test cases, test runs, FAT execution, client sign-off
+* [ ] Phase 5 — Verification, Polish & Deployment: V&V matrix, audit trail UI, production Docker build
 
 ---
 

@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import { env } from './config/env';
 import authRoutes from './routes/auth';
 import projectRoutes from './routes/projects';
+import requirementRoutes from './routes/requirements';
 import { errorHandler, notFound } from './middleware/errorHandler';
 
 const app = express();
@@ -27,6 +28,7 @@ app.use(cookieParser());
 app.get('/healthz', (_req, res) => res.json({ status: 'ok' }));
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
+app.use('/api/projects/:id/requirements', requirementRoutes);
 
 // ── Error handling ─────────────────────────────────────────────────────────────
 app.use(notFound);

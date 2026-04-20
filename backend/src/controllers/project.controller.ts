@@ -32,9 +32,15 @@ const addMemberSchema = z.object({
 });
 
 function isMember(project: InstanceType<typeof Project>, userId: string): boolean {
+  // m.userId may be a populated document or a raw ObjectId
+  const resolveId = (v: unknown): string =>
+    v && typeof v === 'object' && '_id' in v
+      ? (v as { _id: { toString(): string } })._id.toString()
+      : String(v);
+
   return (
     project.createdBy.toString() === userId ||
-    project.members.some((m) => m.userId.toString() === userId)
+    project.members.some((m) => resolveId(m.userId) === userId)
   );
 }
 
