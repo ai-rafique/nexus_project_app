@@ -160,7 +160,7 @@ It unifies **requirements, design, traceability, testing, verification, and deli
 * [x] Phase 1 — Projects & Requirements: full CRUD, member management, versioning, comments, CSV import, Tailwind + Radix UI design system
 * [x] Phase 2 — Documents & Approvals: multi-type document builder, IEEE 830 SRS template, section editor, review/sign-off workflow, PDF export with logo, in-app notifications, company settings
 * [x] Phase 3 — Traceability (RTM): TraceLink CRUD, interactive `@xyflow/react` graph, coverage metrics, orphan detection, node detail drawer, type/status filters
-* [ ] Phase 4 — SDS, Testing & FAT: design spec builder, test cases, test runs, FAT execution, client sign-off
+* [x] Phase 4 — SDS, Testing & FAT: test cases (TC-001 auto-ID, steps, run history), FAT plan execution (per-item pass/fail/blocked + sign-off, auto-complete, punch list report)
 * [ ] Phase 5 — Verification, Polish & Deployment: V&V matrix, audit trail UI, production Docker build
 
 ---

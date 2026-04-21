@@ -209,7 +209,42 @@
 ---
 
 ## Phase 4 — SDS, Testing, FAT
-**Status: PENDING**
+**Status: COMPLETE — 50/50 passed**
+**Date: 2026-04-21**
+**Test file:** `backend/tests/phase4.mjs`
+**Run command:** `MSYS_NO_PATHCONV=1 docker exec nexus_backend node /app/tests/phase4.mjs`
+
+### Test Cases
+
+| ID | Section | Description | Expected | Result |
+|----|---------|-------------|----------|--------|
+| T01–T03 | Seed | Register user, create project + requirement | 201 | PASS |
+| T04 | Test Cases | POST /tests creates test case | 201 | PASS |
+| T05 | Test Cases | Auto-assigned testId = TC-001 | TC-001 | PASS |
+| T06 | Test Cases | Test case has steps array | length=2 | PASS |
+| T07 | Test Cases | Second test case gets TC-002 | TC-002 | PASS |
+| T08 | Test Cases | Missing title returns 400 | 400 | PASS |
+| T09–T10 | Test Cases | GET /tests returns list of 2 | array | PASS |
+| T11–T12 | Test Cases | GET /tests/:id with populated linkedReqs | populated | PASS |
+| T13 | Test Cases | PATCH updates status and description | active | PASS |
+| T14 | Test Cases | Filter by status=active | all active | PASS |
+| T15–T17 | Test Runs | POST /runs — pass, then fail | 201 each | PASS |
+| T18 | Test Runs | Invalid result returns 400 | 400 | PASS |
+| T19–T20 | Test Runs | GET /runs history has 2 entries | length=2 | PASS |
+| T21–T22 | Test Cases | DELETE + confirm 404 | 200 / 404 | PASS |
+| T23–T26 | FAT | POST /fat — 3 items, all pending, draft | 201 | PASS |
+| T27 | FAT | Missing title returns 400 | 400 | PASS |
+| T28–T30 | FAT | List and get plan with items | found | PASS |
+| T31–T32 | FAT | Add item — starts as pending | 201 | PASS |
+| T33–T34 | FAT Execution | PATCH item → plan moves to in_progress | in_progress | PASS |
+| T35–T36 | FAT Sign-off | POST /sign — signedOff=true, timestamps | true | PASS |
+| T37 | FAT Sign-off | Cannot sign pending item | 400 | PASS |
+| T38 | FAT Execution | All items done → plan auto-completes | completed | PASS |
+| T39–T48 | FAT Report | Summary, passRate, punchList (1 failed item) | correct | PASS |
+| T49–T50 | Auth Guard | Unauthenticated /tests and /fat return 401 | 401 | PASS |
+
+### Bugs Found & Fixed
+None — 50/50 on first run.
 
 ---
 

@@ -10,8 +10,8 @@ const phases = [
   { key: 'requirements',  label: 'Requirements',  icon: ClipboardList, path: 'requirements' },
   { key: 'documents',     label: 'Documents',     icon: FileText,      path: 'documents' },
   { key: 'traceability',  label: 'Traceability',  icon: Network,       path: 'traceability' },
-  { key: 'testing',       label: 'Test Cases',    icon: TestTube,      path: 'documents' },
-  { key: 'fat',           label: 'FAT',           icon: CheckSquare,   path: 'documents' },
+  { key: 'testing',       label: 'Test Cases',    icon: TestTube,      path: 'tests' },
+  { key: 'fat',           label: 'FAT',           icon: CheckSquare,   path: 'fat' },
 ];
 
 const statusVariant: Record<string, 'default' | 'success' | 'warning' | 'secondary' | 'destructive'> = {

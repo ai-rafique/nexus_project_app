@@ -11,6 +11,8 @@ import RequirementDetail from '@/pages/projects/RequirementDetail';
 import Documents from '@/pages/projects/Documents';
 import DocumentEditor from '@/pages/projects/DocumentEditor';
 import Traceability from '@/pages/projects/Traceability';
+import Tests from '@/pages/projects/Tests';
+import Fat from '@/pages/projects/Fat';
 import Settings from '@/pages/Settings';
 
 const queryClient = new QueryClient({
@@ -36,6 +38,8 @@ export default function App() {
               <Route path="/projects/:id/documents"                    element={<Documents />} />
               <Route path="/projects/:id/documents/:docId"             element={<DocumentEditor />} />
               <Route path="/projects/:id/traceability"                 element={<Traceability />} />
+              <Route path="/projects/:id/tests"                        element={<Tests />} />
+              <Route path="/projects/:id/fat"                          element={<Fat />} />
               <Route path="/projects/:id/*"                            element={<ProjectHome />} />
               <Route path="/settings"                                  element={<Settings />} />
             </Route>

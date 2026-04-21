@@ -385,10 +385,12 @@ POST   /api/projects/:id/fat
 - Orphan detection
 
 ### Phase 4 — SDS, Testing, FAT (Weeks 12–15)
-- SDS builder
-- Test case management
-- Test run execution
-- FAT plan builder + execution + client sign-off
+- SDS builder (uses existing Document model + SDS-specific section template)
+- Test case management (TestCase model linked to requirements)
+- Test run execution (TestRun model — pass/fail/blocked/na per run, history)
+- FAT plan builder: checklist items with pass/fail/observations + per-item client sign-off
+- Punch list: auto-derived view of failed FAT items (no separate model)
+- NOTE: Full punch list rework tracking (assignee, re-test loop, resolution notes) → Future Work
 
 ### Phase 5 — Verification, Polish, Deployment (Weeks 16–18)
 - Verification matrix
@@ -419,6 +421,21 @@ POST   /api/projects/:id/fat
 
 ### Settings
 - Settings PATCH/logo routes use `requireAuth` only (no `super_admin` guard) — all authenticated users can update company settings
+
+---
+
+## 12. Future Work (deferred, not in current phase plan)
+
+| Feature | Deferred From | Notes |
+|---------|---------------|-------|
+| Email notifications | Phase 2 | Nodemailer + SendGrid/SES; mark "to add" in README |
+| Client portal | Phase 2 | Stripped-down read-only + sign-off view for external clients |
+| Punch list rework tracking | Phase 4 | Assignee, re-test loop, resolution notes per failed FAT item |
+| Rich text editor (Tiptap) | Phase 1+ | Plain textarea used; Tiptap integration deferred |
+| WebSocket real-time collab | Phase 2+ | Socket.io for live notifications / concurrent editing |
+| RTM export (Excel/PDF) | Phase 3 | Graph export button; needs server-side rendering |
+| Bulk FAT item import | Phase 4 | CSV import for FAT checklist items |
+| OpenAPI/Swagger SDS editor | Phase 4+ | Inline API spec editor within SDS sections |
 
 ---
 
