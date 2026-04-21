@@ -1,18 +1,44 @@
+import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FolderKanban, LogOut, ChevronRight, User } from 'lucide-react';
+import { LayoutDashboard, FolderKanban, LogOut, ChevronRight, User, Bell, Settings } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { notificationsApi } from '@/api/notifications';
 
 const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/projects',  label: 'Projects',  icon: FolderKanban },
+  { to: '/settings',  label: 'Settings',  icon: Settings },
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const qc = useQueryClient();
+  const [showNotifs, setShowNotifs] = useState(false);
+
+  const { data: unread } = useQuery({
+    queryKey: ['notifs-count'],
+    queryFn: notificationsApi.unreadCount,
+    refetchInterval: 30_000,
+  });
+
+  const { data: notifs = [] } = useQuery({
+    queryKey: ['notifications'],
+    queryFn: notificationsApi.list,
+    enabled: showNotifs,
+  });
+
+  const markReadMut = useMutation({
+    mutationFn: notificationsApi.markAllRead,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['notifs-count'] });
+      qc.invalidateQueries({ queryKey: ['notifications'] });
+    },
+  });
 
   const handleLogout = async () => {
     await logout();
@@ -74,6 +100,54 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* Main content */}
       <main className="flex-1 overflow-y-auto">
+        {/* Top bar with notification bell */}
+        <div className="flex justify-end items-center px-6 py-3 border-b border-white/5 bg-[#1a1a2e]">
+          <div className="relative">
+            <button
+              className="relative text-white/60 hover:text-white transition-colors"
+              onClick={() => setShowNotifs((v) => !v)}
+            >
+              <Bell className="h-5 w-5" />
+              {(unread?.count ?? 0) > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full min-w-[16px] h-4 flex items-center justify-center px-0.5">
+                  {unread!.count}
+                </span>
+              )}
+            </button>
+
+            {showNotifs && (
+              <div className="absolute right-0 top-8 w-80 bg-[#16213e] border border-[#0f3460] rounded-lg shadow-xl z-50">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-[#0f3460]/40">
+                  <p className="text-sm font-semibold text-white">Notifications</p>
+                  <button onClick={() => markReadMut.mutate()} className="text-xs text-blue-400 hover:underline">
+                    Mark all read
+                  </button>
+                </div>
+                <div className="max-h-80 overflow-y-auto">
+                  {notifs.length === 0 && (
+                    <p className="text-sm text-gray-400 text-center py-6">No notifications</p>
+                  )}
+                  {notifs.map((n) => (
+                    <div
+                      key={n._id}
+                      className={cn(
+                        'px-4 py-3 border-b border-[#0f3460]/20 cursor-pointer hover:bg-[#0f3460]/20',
+                        !n.read && 'bg-[#0f3460]/10',
+                      )}
+                      onClick={() => {
+                        if (n.link) navigate(n.link);
+                        setShowNotifs(false);
+                      }}
+                    >
+                      <p className="text-sm font-medium text-white">{n.title}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">{n.message}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
         {children}
       </main>
     </div>

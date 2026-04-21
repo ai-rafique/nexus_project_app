@@ -3,9 +3,13 @@ import helmet from 'helmet';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { env } from './config/env';
+import path from 'path';
 import authRoutes from './routes/auth';
 import projectRoutes from './routes/projects';
 import requirementRoutes from './routes/requirements';
+import documentRoutes from './routes/documents';
+import notificationRoutes from './routes/notifications';
+import settingsRoutes from './routes/settings';
 import { errorHandler, notFound } from './middleware/errorHandler';
 
 const app = express();
@@ -29,6 +33,10 @@ app.get('/healthz', (_req, res) => res.json({ status: 'ok' }));
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/projects/:id/requirements', requirementRoutes);
+app.use('/api/projects/:projectId/documents', documentRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/settings', settingsRoutes);
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // ── Error handling ─────────────────────────────────────────────────────────────
 app.use(notFound);

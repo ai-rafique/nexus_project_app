@@ -7,11 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { projectsApi } from '@/api/projects';
 
 const phases = [
-  { key: 'requirements', label: 'Requirements', icon: ClipboardList, path: 'requirements' },
-  { key: 'srs',          label: 'SRS Document',  icon: FileText,       path: 'srs' },
-  { key: 'sds',          label: 'SDS Document',  icon: GitBranch,      path: 'sds' },
-  { key: 'testing',      label: 'Test Cases',    icon: TestTube,       path: 'tests' },
-  { key: 'fat',          label: 'FAT',           icon: CheckSquare,    path: 'fat' },
+  { key: 'requirements', label: 'Requirements',   icon: ClipboardList, path: 'requirements' },
+  { key: 'documents',    label: 'Documents',      icon: FileText,      path: 'documents' },
+  { key: 'sds',          label: 'SDS Document',   icon: GitBranch,     path: 'documents' },
+  { key: 'testing',      label: 'Test Cases',     icon: TestTube,      path: 'documents' },
+  { key: 'fat',          label: 'FAT',            icon: CheckSquare,   path: 'documents' },
 ];
 
 const statusVariant: Record<string, 'default' | 'success' | 'warning' | 'secondary' | 'destructive'> = {

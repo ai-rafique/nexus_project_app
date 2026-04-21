@@ -8,6 +8,9 @@ import Dashboard from '@/pages/Dashboard';
 import ProjectHome from '@/pages/projects/ProjectHome';
 import Requirements from '@/pages/projects/Requirements';
 import RequirementDetail from '@/pages/projects/RequirementDetail';
+import Documents from '@/pages/projects/Documents';
+import DocumentEditor from '@/pages/projects/DocumentEditor';
+import Settings from '@/pages/Settings';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
@@ -29,9 +32,10 @@ export default function App() {
               <Route path="/projects/:id"                              element={<ProjectHome />} />
               <Route path="/projects/:id/requirements"                 element={<Requirements />} />
               <Route path="/projects/:id/requirements/:reqId"          element={<RequirementDetail />} />
-              <Route path="/projects/:id/settings"                     element={<ProjectHome />} />
+              <Route path="/projects/:id/documents"                    element={<Documents />} />
+              <Route path="/projects/:id/documents/:docId"             element={<DocumentEditor />} />
               <Route path="/projects/:id/*"                            element={<ProjectHome />} />
-              <Route path="/settings/*"                                element={<Dashboard />} />
+              <Route path="/settings"                                  element={<Settings />} />
             </Route>
 
             {/* Admin */}

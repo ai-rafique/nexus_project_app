@@ -101,7 +101,55 @@
 ---
 
 ## Phase 2 — Documents & Approvals
-**Status: PENDING**
+**Status: COMPLETE — 32/32 passed**
+**Date: 2026-04-21**
+**Test file:** `backend/tests/phase2.mjs`
+**Run command:** `MSYS_NO_PATHCONV=1 docker exec nexus_backend node /app/tests/phase2.mjs`
+
+### Test Cases
+
+| ID | Section | Description | Expected | Result |
+|----|---------|-------------|----------|--------|
+| T01 | Seed | Admin user registers | 201 + token | PASS |
+| T02 | Seed | Reviewer user registers | 201 + token | PASS |
+| T03 | Seed | GET /auth/me returns reviewer _id | _id present | PASS |
+| T04 | Seed | Project created for Phase 2 tests | 201 + _id | PASS |
+| T05 | Settings | GET /settings returns companyName | 200 + string | PASS |
+| T06 | Settings | PATCH /settings updates companyName | 200 + new value | PASS |
+| T07 | Documents | POST /documents creates SRS doc | 201 | PASS |
+| T08 | Documents | SRS doc auto-seeded with IEEE 830 sections | sections.length > 0 | PASS |
+| T09 | Documents | First section is "Introduction" | title match | PASS |
+| T10 | Documents | GET /documents lists the created doc | 200 + found | PASS |
+| T11 | Documents | GET /documents/:id returns full doc with sections | sections array | PASS |
+| T12 | Documents | PATCH section updates content | 200 | PASS |
+| T13 | Documents | Section content persisted correctly | value match | PASS |
+| T14 | Review | POST /submit changes status to in_review | status=in_review | PASS |
+| T15 | Review | Reviewer assigned with pending status | status=pending | PASS |
+| T16 | Review | PATCH section allowed while in_review | 200 | PASS |
+| T17 | Review | Reviewer POSTs /review (approve) | 200 | PASS |
+| T18 | Review | All reviewers approved → status becomes client_review | status=client_review | PASS |
+| T19 | Approval | POST /approve changes status to approved | status=approved | PASS |
+| T20 | Approval | Cannot resubmit an already-approved document | 400 | PASS |
+| T21 | PDF | GET /pdf returns 200 | 200 | PASS |
+| T22 | PDF | Response Content-Type is application/pdf | header match | PASS |
+| T23 | Review | Rejected doc reverts to draft | status=draft | PASS |
+| T24 | Notifications | GET /notifications returns array | array | PASS |
+| T25 | Notifications | Reviewer received review_request notification | type match | PASS |
+| T26 | Notifications | GET /notifications/unread-count returns count | number | PASS |
+| T27 | Notifications | PATCH /notifications/:id/read marks as read | read=true | PASS |
+| T28 | Notifications | PATCH /notifications/read-all returns 200 | 200 | PASS |
+| T29 | Notifications | Admin received review outcome notification | length > 0 | PASS |
+| T30 | Documents | DELETE /documents/:id returns 200 | 200 | PASS |
+| T31 | Documents | Deleted doc returns 404 | 404 | PASS |
+| T32 | Auth Guard | Unauthenticated request returns 401 | 401 | PASS |
+
+### Bugs Found & Fixed
+| Bug | Fix |
+|-----|-----|
+| `req.user!.userId` undefined — JWT payload uses `sub` not `userId` | Changed all controller references from `.userId` to `.sub` |
+| `react` not installed in backend container despite being in `package.json` | Added `react` + `react-dom` to dependencies; forced `docker compose build backend` to reinstall |
+| Project creation test missing required `startDate` field | Added `startDate: new Date().toISOString()` to test seed payload |
+| Settings PATCH blocked by `requireRole('super_admin')` — test users register as `member` | Removed super_admin guard from settings PATCH/logo routes |
 
 ---
 

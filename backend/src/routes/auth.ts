@@ -1,6 +1,6 @@
 import { Router, RequestHandler } from 'express';
 import rateLimit from 'express-rate-limit';
-import { register, login, refresh, logout, setup2fa, verify2fa } from '../controllers/auth.controller';
+import { register, login, refresh, logout, setup2fa, verify2fa, me } from '../controllers/auth.controller';
 import { requireAuth } from '../middleware/auth';
 import { env } from '../config/env';
 
@@ -21,6 +21,7 @@ router.post('/register', authLimiter, register);
 router.post('/login', authLimiter, login);
 router.post('/refresh', authLimiter, refresh);
 router.post('/logout', logout);
+router.get('/me', requireAuth, me);
 router.post('/2fa/setup', requireAuth, setup2fa);
 router.post('/2fa/verify', requireAuth, verify2fa);
 

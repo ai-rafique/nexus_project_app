@@ -234,6 +234,16 @@ export async function setup2fa(req: Request, res: Response, next: NextFunction):
   }
 }
 
+export async function me(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const user = await User.findById(req.user!.sub).select('-passwordHash -totpSecret');
+    if (!user) { res.status(404).json({ message: 'User not found' }); return; }
+    res.json({ _id: user._id, email: user.email, firstName: user.firstName, lastName: user.lastName, globalRole: user.globalRole });
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function verify2fa(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const { token, secret } = totpVerifySchema.parse(req.body);

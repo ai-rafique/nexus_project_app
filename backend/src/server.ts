@@ -1,7 +1,11 @@
 import 'dotenv/config';
+import fs from 'fs';
+import path from 'path';
 import { env } from './config/env';
 import { connectDB } from './config/db';
 import app from './app';
+
+fs.mkdirSync(path.join(process.cwd(), 'uploads'), { recursive: true });
 
 async function start(): Promise<void> {
   await connectDB();

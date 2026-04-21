@@ -52,12 +52,15 @@ It unifies **requirements, design, traceability, testing, verification, and deli
 
 ---
 
-### 📄 SRS Generator
+### 📄 Document Centre ✅ *Live*
 
-* Auto-generate SRS from approved requirements
-* IEEE 830 aligned templates
-* Export to PDF / DOCX
-* Client approval & digital sign-off
+* Multi-type documents: SRS, SDS, FAT Plan, FAT Report, Verification Matrix
+* IEEE 830 section structure auto-seeded for SRS documents
+* Section-by-section editor with linked requirements display
+* PDF export via `@react-pdf/renderer` — cover page, watermark, TOC, company logo
+* Internal review workflow: draft → in\_review → client\_review → approved
+* Rejection reverts document to draft for rework
+* In-app notification bell with unread badge for all review events
 
 ---
 
@@ -101,12 +104,14 @@ It unifies **requirements, design, traceability, testing, verification, and deli
 
 ---
 
-### 📦 Document & Approval System
+### 📦 Document & Approval System ✅ *Live*
 
-* Version-controlled documents
-* Review workflows
-* Digital signatures
-* Audit trails
+* Version-controlled documents with status workflow
+* Multi-reviewer approval with per-reviewer sign-off tracking
+* PDF generation with company logo, watermarks, and IEEE 830 layout
+* Company settings (name, logo) configurable from the Settings page
+* In-app notifications for review requests, approvals, and rejections
+* Email notifications — *to add* (configurable/optional, planned post-core)
 
 ---
 
@@ -153,7 +158,7 @@ It unifies **requirements, design, traceability, testing, verification, and deli
 
 * [x] Phase 0 — Foundation: Docker, CI, MongoDB, Auth (JWT + 2FA), User & Project models, React base app
 * [x] Phase 1 — Projects & Requirements: full CRUD, member management, versioning, comments, CSV import, Tailwind + Radix UI design system
-* [ ] Phase 2 — Documents & Approvals: SRS builder, review/sign-off workflow, PDF/DOCX export, client portal
+* [x] Phase 2 — Documents & Approvals: multi-type document builder, IEEE 830 SRS template, section editor, review/sign-off workflow, PDF export with logo, in-app notifications, company settings
 * [ ] Phase 3 — Traceability (RTM): trace links, interactive graph (React Flow), coverage metrics, orphan detection
 * [ ] Phase 4 — SDS, Testing & FAT: design spec builder, test cases, test runs, FAT execution, client sign-off
 * [ ] Phase 5 — Verification, Polish & Deployment: V&V matrix, audit trail UI, production Docker build
