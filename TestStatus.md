@@ -249,4 +249,53 @@ None — 50/50 on first run.
 ---
 
 ## Phase 5 — Verification, Polish, Deployment
-**Status: PENDING**
+**Status: COMPLETE — 35/35 passed**
+**Date: 2026-04-21**
+**Test file:** `backend/tests/phase5.mjs`
+**Run command:** `MSYS_NO_PATHCONV=1 docker exec nexus_backend node /app/tests/phase5.mjs`
+
+### Test Cases
+
+| ID | Section | Description | Expected | Result |
+|----|---------|-------------|----------|--------|
+| T01 | Seed | Admin user registers | 201 + token | PASS |
+| T02 | Seed | Login returns access token | 200 + token | PASS |
+| T03 | Seed | GET /auth/me returns user _id | _id present | PASS |
+| T04 | Seed | Project created | 201 + _id | PASS |
+| T05 | Seed | Requirement created | 201 + _id | PASS |
+| T06 | Verification | GET /verification returns matrix | 200 | PASS |
+| T07 | Verification | Matrix response has entries array | array | PASS |
+| T08 | Verification | New matrix starts with empty entries | length=0 | PASS |
+| T09 | Verification | POST /verification/entries creates entry | 200/201 | PASS |
+| T10 | Verification | New entry has _id | field present | PASS |
+| T11 | Verification | Duplicate req+method returns 409 | 409 | PASS |
+| T12 | Verification | Same req with different method allowed | 200/201 | PASS |
+| T13 | Verification | PATCH entry status to verified | 200 | PASS |
+| T14 | Verification | Entry status updated to verified | status=verified | PASS |
+| T15 | Verification | verifiedBy auto-set on verify | field present | PASS |
+| T16 | Verification | verifiedAt auto-set on verify | field present | PASS |
+| T17 | Verification | Can update status to in_progress | 200 | PASS |
+| T18 | Verification | GET /verification/summary returns object | 200 | PASS |
+| T19 | Verification | Summary has totalRequirements | number | PASS |
+| T20 | Verification | Summary has verificationRate | number | PASS |
+| T21 | Verification | Summary coveredRequirements > 0 | > 0 | PASS |
+| T22 | Verification | POST /verification/auto-populate returns 200 | 200 | PASS |
+| T23 | Verification | Auto-populate returns matrix with entries | entries present | PASS |
+| T24 | Verification | DELETE entry returns 200 | 200 | PASS |
+| T25 | Verification | Deleted entry no longer in matrix | not found | PASS |
+| T26 | Audit | GET /audit returns data array | array | PASS |
+| T27 | Audit | Response has total count | number | PASS |
+| T28 | Audit | Audit log contains events | total > 0 | PASS |
+| T29 | Audit | requirement.create event recorded | found | PASS |
+| T30 | Audit | Pagination limit parameter works | length ≤ 2 | PASS |
+| T31 | Audit | GET /audit (global) returns events | array | PASS |
+| T32 | Audit | Global log contains user.register event | found | PASS |
+| T33 | Audit | Global log contains user.login event | found | PASS |
+| T34 | Audit | Global audit action filter works | all match | PASS |
+| T35 | Auth Guard | Unauthenticated /audit returns 401 | 401 | PASS |
+
+### Bugs Found & Fixed
+| Bug | Fix |
+|-----|-----|
+| Audit controller returned `{ logs, total }` but test and frontend expect `{ data, total }` | Renamed key from `logs` to `data` in both `getProjectAudit` and `getGlobalAudit` |
+| `addEntry` / `updateEntry` returned only the sub-document; test expected full populated matrix | Changed all mutating verification endpoints to reload and return the full populated matrix |

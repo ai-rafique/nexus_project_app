@@ -86,21 +86,44 @@ It unifies **requirements, design, traceability, testing, verification, and deli
 
 ---
 
-### 🧪 Testing & QA
+### 🧪 Testing & QA ✅ *Live*
 
-* Test cases linked to requirements
-* Test runs & execution tracking
-* Defect management
-* Coverage reporting
+* Test cases with auto-assigned IDs (`TC-001`, etc.) linked to requirements
+* Step-by-step test definition with run logging (pass / fail / blocked)
+* Full run history per test case
+* Filter by status; search by title
 
 ---
 
-### 🏭 FAT (Factory Acceptance Testing)
+### 🏭 FAT (Factory Acceptance Testing) ✅ *Live*
 
-* FAT plans & execution flows
-* Client witness sign-off
-* Automated FAT reports
-* Punch list tracking
+* FAT plans with ordered checklist items
+* Per-item execution: pass / fail / blocked + observations
+* Per-item client sign-off with timestamp
+* Plan auto-completes when all items have results
+* Automated FAT report with pass rate and punch list (failed items flagged for rework)
+
+---
+
+### ✅ Verification Matrix ✅ *Live*
+
+* Singleton V&V matrix per project
+* Entries keyed by requirement + method (test / review / analysis / demonstration)
+* Prevents duplicate req+method combinations (409)
+* Auto-populate: derives test entries from test case links, review entries from trace links
+* Status tracking: planned → in_progress → verified / failed
+* `verifiedBy` and `verifiedAt` auto-set on first `verified` transition
+* Summary dashboard: coverage %, verified / failed / planned counts
+
+---
+
+### 📋 Audit Trail ✅ *Live*
+
+* Immutable append-only event log for all key actions
+* Project-scoped log and global log (with action / entityType filters)
+* Paginated timeline UI with action badges and actor info
+* Silent writes — audit failures never break the main API response
+* Covers: user register/login, requirement create, document create/submit/approve, verification entry changes
 
 ---
 
@@ -134,7 +157,9 @@ It unifies **requirements, design, traceability, testing, verification, and deli
 
 ### Infrastructure
 
-* Docker + Docker Compose
+* Docker + Docker Compose (dev: bind-mount + tsx watch)
+* Multi-stage production Dockerfiles — TypeScript compile → slim Node runtime; Vite build → nginx serve
+* `docker-compose.prod.yml` — `NODE_ENV=production`, CPU/memory resource limits, named upload volume
 * GitHub Actions (CI/CD)
 * S3 / MinIO (file storage)
 
@@ -142,15 +167,16 @@ It unifies **requirements, design, traceability, testing, verification, and deli
 
 ## 🧩 System Modules
 
-| Module       | Description                               |
-| ------------ | ----------------------------------------- |
-| Requirements | Capture, version, and manage requirements |
-| SRS          | Auto-generated requirement specification  |
-| SDS          | System design and architecture            |
-| RTM          | Full traceability graph                   |
-| Testing      | QA lifecycle management                   |
-| FAT          | Client acceptance workflow                |
-| Documents    | Versioned approvals & exports             |
+| Module               | Description                                             | Status |
+| -------------------- | ------------------------------------------------------- | ------ |
+| Requirements         | Capture, version, and manage requirements               | ✅ Live |
+| Documents            | SRS / SDS / FAT docs, IEEE 830 template, PDF export     | ✅ Live |
+| Traceability (RTM)   | Interactive graph, coverage metrics, orphan detection   | ✅ Live |
+| Testing              | Test cases, run history, linked requirements            | ✅ Live |
+| FAT                  | Client acceptance workflow, punch list, sign-off        | ✅ Live |
+| Verification Matrix  | V&V coverage by method, auto-populate, verified/failed  | ✅ Live |
+| Audit Trail          | Full event log, global + project-scoped, paginated      | ✅ Live |
+| Notifications        | In-app bell, unread badge, review & approval alerts     | ✅ Live |
 
 ---
 
@@ -161,7 +187,7 @@ It unifies **requirements, design, traceability, testing, verification, and deli
 * [x] Phase 2 — Documents & Approvals: multi-type document builder, IEEE 830 SRS template, section editor, review/sign-off workflow, PDF export with logo, in-app notifications, company settings
 * [x] Phase 3 — Traceability (RTM): TraceLink CRUD, interactive `@xyflow/react` graph, coverage metrics, orphan detection, node detail drawer, type/status filters
 * [x] Phase 4 — SDS, Testing & FAT: test cases (TC-001 auto-ID, steps, run history), FAT plan execution (per-item pass/fail/blocked + sign-off, auto-complete, punch list report)
-* [ ] Phase 5 — Verification, Polish & Deployment: V&V matrix, audit trail UI, production Docker build
+* [x] Phase 5 — Verification, Polish & Deployment: V&V matrix (singleton per project, auto-populate from test links, coverage summary), full audit trail (project-scoped + global, paginated, action/entityType filters), production multi-stage Dockerfiles + `docker-compose.prod.yml` with resource limits
 
 ---
 
