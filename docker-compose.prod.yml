@@ -1,0 +1,58 @@
+version: '3.9'
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: nexus_mongo_prod
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+      MONGO_INITDB_DATABASE: nexus
+    volumes:
+      - mongo_data:/data/db
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    container_name: nexus_backend_prod
+    restart: always
+    depends_on:
+      - mongo
+    env_file:
+      - ./backend/.env.prod
+    environment:
+      NODE_ENV: production
+    ports:
+      - '4000:4000'
+    volumes:
+      - uploads:/app/uploads
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512m
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    container_name: nexus_frontend_prod
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - '80:80'
+    deploy:
+      resources:
+        limits:
+          memory: 128m
+
+volumes:
+  mongo_data:
+  uploads:

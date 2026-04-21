@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { parse } from 'csv-parse/sync';
 import { Requirement } from '../models/Requirement';
 import { Project } from '../models/Project';
+import { audit } from '../services/audit.service';
 
 // ── Schemas ────────────────────────────────────────────────────────────────────
 
@@ -78,6 +79,7 @@ export async function createRequirement(req: Request, res: Response, next: NextF
       }],
     });
 
+    await audit(req.user!.sub, 'requirement.create', 'Requirement', requirement._id.toString(), { reqId, title: body.title }, projectId);
     res.status(201).json({ data: requirement });
   } catch (err) { next(err); }
 }

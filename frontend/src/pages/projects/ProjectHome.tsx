@@ -1,6 +1,6 @@
 import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ClipboardList, FileText, GitBranch, TestTube, CheckSquare, Settings, ArrowRight, Network } from 'lucide-react';
+import { ClipboardList, FileText, GitBranch, TestTube, CheckSquare, Settings, ArrowRight, Network, ShieldCheck, ScrollText } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -12,6 +12,8 @@ const phases = [
   { key: 'traceability',  label: 'Traceability',  icon: Network,       path: 'traceability' },
   { key: 'testing',       label: 'Test Cases',    icon: TestTube,      path: 'tests' },
   { key: 'fat',           label: 'FAT',           icon: CheckSquare,   path: 'fat' },
+  { key: 'verification',  label: 'Verification',  icon: ShieldCheck,   path: 'verification' },
+  { key: 'audit',         label: 'Audit Trail',   icon: ScrollText,    path: 'audit' },
 ];
 
 const statusVariant: Record<string, 'default' | 'success' | 'warning' | 'secondary' | 'destructive'> = {

@@ -5,6 +5,7 @@ import { Settings } from '../models/Settings';
 import { Project } from '../models/Project';
 import { generateSrsPdf, IEEE_830_SECTIONS } from '../services/pdf.service';
 import { createNotification, notifyMany } from '../services/notification.service';
+import { audit } from '../services/audit.service';
 import type { IDocSection } from '../models/Document';
 import type { Types } from 'mongoose';
 
@@ -31,6 +32,7 @@ export async function createDocument(req: Request, res: Response) {
       createdBy: req.user!.sub,
     });
 
+    await audit(req.user!.sub, 'document.create', 'Document', doc._id.toString(), { type, title }, projectId);
     return res.status(201).json(doc);
   } catch (err) {
     return res.status(500).json({ message: 'Server error', error: String(err) });
@@ -114,6 +116,7 @@ export async function submitForReview(req: Request, res: Response) {
       comment: '',
     }));
     await doc.save();
+    await audit(req.user!.sub, 'document.submit', 'Document', docId, { reviewerIds }, projectId);
 
     const project = await Project.findById(projectId).select('name');
     await notifyMany(
@@ -191,6 +194,7 @@ export async function approveDocument(req: Request, res: Response) {
 
     doc.status = 'approved';
     await doc.save();
+    await audit(req.user!.sub, 'document.approve', 'Document', docId, {}, projectId);
 
     const project = await Project.findById(projectId).select('name');
     await createNotification(

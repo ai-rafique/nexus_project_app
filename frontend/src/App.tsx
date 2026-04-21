@@ -13,6 +13,8 @@ import DocumentEditor from '@/pages/projects/DocumentEditor';
 import Traceability from '@/pages/projects/Traceability';
 import Tests from '@/pages/projects/Tests';
 import Fat from '@/pages/projects/Fat';
+import VerificationMatrix from '@/pages/projects/VerificationMatrix';
+import AuditTrail from '@/pages/projects/AuditTrail';
 import Settings from '@/pages/Settings';
 
 const queryClient = new QueryClient({
@@ -40,6 +42,8 @@ export default function App() {
               <Route path="/projects/:id/traceability"                 element={<Traceability />} />
               <Route path="/projects/:id/tests"                        element={<Tests />} />
               <Route path="/projects/:id/fat"                          element={<Fat />} />
+              <Route path="/projects/:id/verification"                 element={<VerificationMatrix />} />
+              <Route path="/projects/:id/audit"                        element={<AuditTrail />} />
               <Route path="/projects/:id/*"                            element={<ProjectHome />} />
               <Route path="/settings"                                  element={<Settings />} />
             </Route>

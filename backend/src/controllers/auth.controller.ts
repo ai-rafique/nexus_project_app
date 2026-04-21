@@ -7,6 +7,7 @@ import qrcode from 'qrcode';
 import { z } from 'zod';
 import { User } from '../models/User';
 import { RefreshToken } from '../models/RefreshToken';
+import { audit } from '../services/audit.service';
 import { env } from '../config/env';
 
 // ── Schemas ────────────────────────────────────────────────────────────────────
@@ -97,6 +98,7 @@ export async function register(req: Request, res: Response, next: NextFunction):
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     });
 
+    await audit(user.id, 'user.register', 'User', user.id, { email: user.email });
     res.status(201).json({
       accessToken,
       refreshToken: refreshRaw,
@@ -143,6 +145,7 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
 
     user.lastLogin = new Date();
     await user.save();
+    await audit(user.id, 'user.login', 'User', user.id, { email: user.email });
 
     const accessToken = signAccessToken(user.id, user.email, user.globalRole);
     const refreshRaw = signRefreshToken(user.id);
