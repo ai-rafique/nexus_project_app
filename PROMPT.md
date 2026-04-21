@@ -164,7 +164,7 @@ Stripped-down, clean interface showing:
 - **Routing**: React Router v6
 - **UI**: Custom design system built on Radix UI primitives + Tailwind CSS
 - **Rich Text**: Tiptap
-- **Traceability Graph**: React Flow (for RTM interactive graph)
+- **Traceability Graph**: `@xyflow/react` (maintained successor to `reactflow`)
 - **Charts**: Recharts or Nivo
 - **Tables**: TanStack Table
 - **Forms**: React Hook Form + Zod
@@ -396,6 +396,29 @@ POST   /api/projects/:id/fat
 - Audit trail UI
 - Performance optimisation
 - Production Docker build + deployment docs
+
+---
+
+## 11. Implementation Notes (updated as built)
+
+### Package decisions
+- `@react-pdf/renderer` used for PDF generation (not Puppeteer — lighter, no headless Chrome)
+- `@xyflow/react` used for RTM graph (maintained successor to `reactflow`)
+- `react` + `react-dom` added to backend `dependencies` (required by `@react-pdf/renderer` at runtime)
+- Radix UI `Badge` does not exist — `Badge` is a plain styled `div` with CVA
+
+### Auth / middleware
+- JWT payload uses `sub` (not `userId`) for the user ID — all controllers use `req.user!.sub`
+- `GET /api/auth/me` endpoint added in Phase 2
+
+### Docker / dev workflow
+- `tsx watch` does NOT detect file changes via bind mounts on Windows — always use `docker compose up -d --force-recreate backend` after code changes
+- After adding new npm packages: `docker compose build backend` first, then `--force-recreate --renew-anon-volumes`
+- Docker context must be `desktop-linux` on this machine
+- Prefix `docker exec` commands with `MSYS_NO_PATHCONV=1` in Git Bash
+
+### Settings
+- Settings PATCH/logo routes use `requireAuth` only (no `super_admin` guard) — all authenticated users can update company settings
 
 ---
 

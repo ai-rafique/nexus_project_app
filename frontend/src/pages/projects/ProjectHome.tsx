@@ -1,17 +1,17 @@
 import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ClipboardList, FileText, GitBranch, TestTube, CheckSquare, Settings, ArrowRight } from 'lucide-react';
+import { ClipboardList, FileText, GitBranch, TestTube, CheckSquare, Settings, ArrowRight, Network } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { projectsApi } from '@/api/projects';
 
 const phases = [
-  { key: 'requirements', label: 'Requirements',   icon: ClipboardList, path: 'requirements' },
-  { key: 'documents',    label: 'Documents',      icon: FileText,      path: 'documents' },
-  { key: 'sds',          label: 'SDS Document',   icon: GitBranch,     path: 'documents' },
-  { key: 'testing',      label: 'Test Cases',     icon: TestTube,      path: 'documents' },
-  { key: 'fat',          label: 'FAT',            icon: CheckSquare,   path: 'documents' },
+  { key: 'requirements',  label: 'Requirements',  icon: ClipboardList, path: 'requirements' },
+  { key: 'documents',     label: 'Documents',     icon: FileText,      path: 'documents' },
+  { key: 'traceability',  label: 'Traceability',  icon: Network,       path: 'traceability' },
+  { key: 'testing',       label: 'Test Cases',    icon: TestTube,      path: 'documents' },
+  { key: 'fat',           label: 'FAT',           icon: CheckSquare,   path: 'documents' },
 ];
 
 const statusVariant: Record<string, 'default' | 'success' | 'warning' | 'secondary' | 'destructive'> = {

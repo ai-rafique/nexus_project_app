@@ -154,7 +154,57 @@
 ---
 
 ## Phase 3 — Traceability (RTM)
-**Status: PENDING**
+**Status: COMPLETE — 35/35 passed**
+**Date: 2026-04-21**
+**Test file:** `backend/tests/phase3.mjs`
+**Run command:** `MSYS_NO_PATHCONV=1 docker exec nexus_backend node /app/tests/phase3.mjs`
+
+### Test Cases
+
+| ID | Section | Description | Expected | Result |
+|----|---------|-------------|----------|--------|
+| T01 | Seed | User registers | 201 + token | PASS |
+| T02 | Seed | Project created | 201 + _id | PASS |
+| T03 | Seed | Requirement 1 created | 201 + _id | PASS |
+| T04 | Seed | Requirement 2 created | 201 + _id | PASS |
+| T05 | Seed | SRS document created with sections | sections present | PASS |
+| T06 | TraceLinks | POST /tracelinks — requirement → srs_section (derives) | 201 | PASS |
+| T07 | TraceLinks | POST /tracelinks — requirement → requirement (verifies) | 201 | PASS |
+| T08 | TraceLinks | Duplicate link rejected | 409 | PASS |
+| T09 | TraceLinks | Self-link rejected | 400 | PASS |
+| T10 | TraceLinks | Missing required fields rejected | 400 | PASS |
+| T11 | TraceLinks | GET /tracelinks returns array | 200 + array | PASS |
+| T12 | TraceLinks | List contains both created links | length ≥ 2 | PASS |
+| T13 | Graph | GET /traceability/graph returns 200 | 200 | PASS |
+| T14 | Graph | Graph response has nodes array | array | PASS |
+| T15 | Graph | Graph response has edges array | array | PASS |
+| T16 | Graph | Graph nodes include requirement type | found | PASS |
+| T17 | Graph | Graph nodes include srs_section type | found | PASS |
+| T18 | Graph | Edge count matches link count | ≥ 2 | PASS |
+| T19 | Graph | Edges have source, target, linkType | fields present | PASS |
+| T20 | Coverage | GET /traceability/coverage returns 200 | 200 | PASS |
+| T21 | Coverage | Response has total field | number | PASS |
+| T22 | Coverage | Total equals requirement count | 2 | PASS |
+| T23 | Coverage | Response has coveragePercent | number | PASS |
+| T24 | Coverage | Response has orphanList array | array | PASS |
+| T25 | Coverage | Both requirements covered → 0 orphans | orphans=0 | PASS |
+| T26 | Coverage | Coverage percent is 100 when all linked | 100 | PASS |
+| T27 | Orphans | Unlinked requirement created | 201 + _id | PASS |
+| T28 | Orphans | Total increments to 3 | total=3 | PASS |
+| T29 | Orphans | Orphan count is 1 | orphans=1 | PASS |
+| T30 | Orphans | Orphan list contains unlinked req | found | PASS |
+| T31 | Orphans | Coverage percent drops below 100 | < 100 | PASS |
+| T32 | TraceLinks | DELETE /tracelinks/:id returns 200 | 200 | PASS |
+| T33 | TraceLinks | Deleted link removed from list | length - 1 | PASS |
+| T34 | TraceLinks | Delete already-deleted link returns 404 | 404 | PASS |
+| T35 | Auth Guard | Unauthenticated request returns 401 | 401 | PASS |
+
+### Bugs Found & Fixed
+| Bug | Fix |
+|-----|-----|
+| TraceLink routes mounted without `/tracelinks` prefix — all returned 404 | Added prefix inside router: `router.get('/tracelinks', ...)` |
+| `targetId` schema typed as `ObjectId` — rejects string SRS section IDs like `"introduction"` | Changed `sourceId`/`targetId` to `String` type in schema |
+| Graph controller called `.toString()` on `sourceId`/`targetId` (already strings) | Removed redundant `.toString()` calls throughout |
 
 ---
 

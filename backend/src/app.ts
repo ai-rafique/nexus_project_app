@@ -10,6 +10,7 @@ import requirementRoutes from './routes/requirements';
 import documentRoutes from './routes/documents';
 import notificationRoutes from './routes/notifications';
 import settingsRoutes from './routes/settings';
+import traceLinkRoutes from './routes/tracelinks';
 import { errorHandler, notFound } from './middleware/errorHandler';
 
 const app = express();
@@ -34,6 +35,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/projects/:id/requirements', requirementRoutes);
 app.use('/api/projects/:projectId/documents', documentRoutes);
+app.use('/api/projects/:projectId', traceLinkRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));

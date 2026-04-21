@@ -10,6 +10,7 @@ import Requirements from '@/pages/projects/Requirements';
 import RequirementDetail from '@/pages/projects/RequirementDetail';
 import Documents from '@/pages/projects/Documents';
 import DocumentEditor from '@/pages/projects/DocumentEditor';
+import Traceability from '@/pages/projects/Traceability';
 import Settings from '@/pages/Settings';
 
 const queryClient = new QueryClient({
@@ -34,6 +35,7 @@ export default function App() {
               <Route path="/projects/:id/requirements/:reqId"          element={<RequirementDetail />} />
               <Route path="/projects/:id/documents"                    element={<Documents />} />
               <Route path="/projects/:id/documents/:docId"             element={<DocumentEditor />} />
+              <Route path="/projects/:id/traceability"                 element={<Traceability />} />
               <Route path="/projects/:id/*"                            element={<ProjectHome />} />
               <Route path="/settings"                                  element={<Settings />} />
             </Route>

@@ -159,7 +159,7 @@ It unifies **requirements, design, traceability, testing, verification, and deli
 * [x] Phase 0 — Foundation: Docker, CI, MongoDB, Auth (JWT + 2FA), User & Project models, React base app
 * [x] Phase 1 — Projects & Requirements: full CRUD, member management, versioning, comments, CSV import, Tailwind + Radix UI design system
 * [x] Phase 2 — Documents & Approvals: multi-type document builder, IEEE 830 SRS template, section editor, review/sign-off workflow, PDF export with logo, in-app notifications, company settings
-* [ ] Phase 3 — Traceability (RTM): trace links, interactive graph (React Flow), coverage metrics, orphan detection
+* [x] Phase 3 — Traceability (RTM): TraceLink CRUD, interactive `@xyflow/react` graph, coverage metrics, orphan detection, node detail drawer, type/status filters
 * [ ] Phase 4 — SDS, Testing & FAT: design spec builder, test cases, test runs, FAT execution, client sign-off
 * [ ] Phase 5 — Verification, Polish & Deployment: V&V matrix, audit trail UI, production Docker build
 
