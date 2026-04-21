@@ -16,6 +16,7 @@ import Fat from '@/pages/projects/Fat';
 import VerificationMatrix from '@/pages/projects/VerificationMatrix';
 import AuditTrail from '@/pages/projects/AuditTrail';
 import Settings from '@/pages/Settings';
+import { Toaster } from '@/components/Toaster';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
@@ -58,6 +59,7 @@ export default function App() {
           </Routes>
         </BrowserRouter>
       </AuthProvider>
+      <Toaster />
     </QueryClientProvider>
   );
 }

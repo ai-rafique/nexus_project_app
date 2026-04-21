@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { documentsApi } from '@/api/documents';
+import { toast } from '@/lib/toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -43,13 +44,16 @@ export default function Documents() {
     onSuccess: (doc) => {
       qc.invalidateQueries({ queryKey: ['documents', projectId] });
       setShowCreate(false);
+      toast.success('Document created');
       navigate(`/projects/${projectId}/documents/${doc._id}`);
     },
+    onError: () => toast.error('Failed to create document'),
   });
 
   const deleteMut = useMutation({
     mutationFn: (docId: string) => documentsApi.delete(projectId!, docId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['documents', projectId] }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['documents', projectId] }); toast.success('Document deleted'); },
+    onError: () => toast.error('Failed to delete document'),
   });
 
   return (

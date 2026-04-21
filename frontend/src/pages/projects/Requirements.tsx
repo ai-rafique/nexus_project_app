@@ -15,6 +15,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { requirementsApi, type CreateRequirementDto } from '@/api/requirements';
+import { toast } from '@/lib/toast';
 
 const schema = z.object({
   title:              z.string().min(1, 'Required').max(200),
@@ -59,12 +60,14 @@ export default function Requirements() {
 
   const create = useMutation({
     mutationFn: (dto: CreateRequirementDto) => requirementsApi.create(projectId!, dto),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['requirements', projectId] }); setOpen(false); reset(); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['requirements', projectId] }); setOpen(false); reset(); toast.success('Requirement created'); },
+    onError: () => toast.error('Failed to create requirement'),
   });
 
   const importMut = useMutation({
     mutationFn: (file: File) => requirementsApi.import(projectId!, file),
-    onSuccess: (res) => { qc.invalidateQueries({ queryKey: ['requirements', projectId] }); alert(`Imported ${res.imported} requirements`); },
+    onSuccess: (res) => { qc.invalidateQueries({ queryKey: ['requirements', projectId] }); toast.success(`Imported ${res.imported} requirements`); },
+    onError: () => toast.error('Import failed', 'Check your CSV format and try again.'),
   });
 
   const onSubmit = (data: Form) => create.mutate(data as CreateRequirementDto);

@@ -155,7 +155,16 @@ It unifies **requirements, design, traceability, testing, verification, and deli
 * Tailwind + Radix UI
 * React Flow (RTM graph)
 
-### Infrastructure
+### 🔎 Global Search ✅ *Live*
+
+* `Cmd+K` / `Ctrl+K` command palette available from any page
+* Searches across requirements (title, REQ-ID), documents (title), and test cases simultaneously
+* Cross-project: searches all projects the user has access to
+* Debounced 250ms, keyboard navigable (↑↓ Enter Esc), result type badges
+
+---
+
+### 🏗️ Infrastructure
 
 * Docker + Docker Compose (dev: bind-mount + tsx watch)
 * Multi-stage production Dockerfiles — TypeScript compile → slim Node runtime; Vite build → nginx serve
@@ -188,6 +197,7 @@ It unifies **requirements, design, traceability, testing, verification, and deli
 * [x] Phase 3 — Traceability (RTM): TraceLink CRUD, interactive `@xyflow/react` graph, coverage metrics, orphan detection, node detail drawer, type/status filters
 * [x] Phase 4 — SDS, Testing & FAT: test cases (TC-001 auto-ID, steps, run history), FAT plan execution (per-item pass/fail/blocked + sign-off, auto-complete, punch list report)
 * [x] Phase 5 — Verification, Polish & Deployment: V&V matrix (singleton per project, auto-populate from test links, coverage summary), full audit trail (project-scoped + global, paginated, action/entityType filters), production multi-stage Dockerfiles + `docker-compose.prod.yml` with resource limits
+* [x] Phase 6 — UX Polish: analytics dashboard (stats cards + recent activity feed + skeleton loaders), breadcrumb navigation in topbar, global `Cmd+K` search palette (cross-project requirements/documents/tests), toast notification system wired to all key mutations
 
 ---
 

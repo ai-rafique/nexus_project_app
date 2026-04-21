@@ -15,6 +15,7 @@ import testRoutes from './routes/tests';
 import fatRoutes from './routes/fat';
 import verificationRoutes from './routes/verification';
 import auditRoutes, { getGlobalAudit } from './routes/audit';
+import searchRoutes from './routes/search';
 import { requireAuth } from './middleware/auth';
 import { errorHandler, notFound } from './middleware/errorHandler';
 
@@ -46,6 +47,7 @@ app.use('/api/projects/:projectId/fat', fatRoutes);
 app.use('/api/projects/:projectId/verification', verificationRoutes);
 app.use('/api/projects/:projectId/audit', auditRoutes);
 app.use('/api/audit', requireAuth, getGlobalAudit);
+app.use('/api/search', searchRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
