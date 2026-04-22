@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FolderKanban, LogOut, ChevronRight, User, Bell, Settings, Search } from 'lucide-react';
+import { LayoutDashboard, FolderKanban, LogOut, ChevronRight, Bell, Settings, Search, UserCircle, ShieldAlert } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -9,12 +9,6 @@ import { notificationsApi } from '@/api/notifications';
 import { Breadcrumb } from '@/components/Breadcrumb';
 import { CommandPalette } from '@/components/CommandPalette';
 
-const navItems = [
-  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/projects',  label: 'Projects',  icon: FolderKanban },
-  { to: '/settings',  label: 'Settings',  icon: Settings },
-];
-
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -22,6 +16,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const qc = useQueryClient();
   const [showNotifs, setShowNotifs]   = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
+
+  const navItems = [
+    { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { to: '/projects',  label: 'Projects',  icon: FolderKanban },
+    { to: '/settings',  label: 'Settings',  icon: Settings },
+    ...(user?.globalRole === 'super_admin' ? [{ to: '/admin/users', label: 'User Management', icon: ShieldAlert }] : []),
+  ];
 
   const { data: unread } = useQuery({
     queryKey: ['notifs-count'],
@@ -43,7 +44,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     },
   });
 
-  // Cmd+K / Ctrl+K global shortcut
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
@@ -60,6 +60,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     navigate('/login');
   };
 
+  const initials = user ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase() : 'U';
+
   return (
     <div className="flex h-screen bg-muted overflow-hidden">
       {/* Sidebar */}
@@ -71,7 +73,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           {navItems.map(({ to, label, icon: Icon }) => {
-            const active = location.pathname.startsWith(to);
+            const active = location.pathname === to || location.pathname.startsWith(to + '/') || (to === '/projects' && location.pathname.startsWith('/projects'));
             return (
               <Link
                 key={to}
@@ -91,16 +93,25 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           })}
         </nav>
 
-        <div className="px-3 py-4 border-t border-white/10">
-          <div className="flex items-center gap-3 px-3 py-2 mb-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-600 shrink-0">
-              <User className="h-4 w-4 text-white" />
+        {/* User section */}
+        <div className="px-3 py-4 border-t border-white/10 space-y-1">
+          <Link
+            to="/profile"
+            className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-white/10 transition-colors group"
+          >
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-600 shrink-0 overflow-hidden">
+              {user?.hasAvatar ? (
+                <img src={`/api/auth/avatar`} alt="avatar" className="h-full w-full object-cover" />
+              ) : (
+                <span className="text-xs font-bold text-white">{initials}</span>
+              )}
             </div>
-            <div className="min-w-0">
-              <p className="text-sm font-medium truncate">{user?.firstName} {user?.lastName}</p>
-              <p className="text-xs text-white/50 truncate">{user?.globalRole}</p>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium truncate group-hover:text-white">{user?.firstName} {user?.lastName}</p>
+              <p className="text-xs text-white/50 truncate">{user?.globalRole === 'super_admin' ? 'Super Admin' : 'Member'}</p>
             </div>
-          </div>
+            <UserCircle className="h-3.5 w-3.5 text-white/30 group-hover:text-white/60 shrink-0" />
+          </Link>
           <Button
             variant="ghost"
             size="sm"
@@ -113,16 +124,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
 
-      {/* Main content */}
-      <main className="flex-1 overflow-y-auto flex flex-col">
+      {/* Main */}
+      <main className="flex-1 flex flex-col min-h-0 overflow-hidden">
         {/* Top bar */}
         <div className="flex items-center justify-between px-6 py-3 border-b border-white/5 bg-[#1a1a2e] shrink-0">
-          {/* Breadcrumb */}
           <Breadcrumb />
-
-          {/* Right controls */}
           <div className="flex items-center gap-3">
-            {/* Search trigger */}
             <button
               onClick={() => setPaletteOpen(true)}
               className="flex items-center gap-2 text-white/50 hover:text-white/80 transition-colors text-xs border border-white/10 rounded-md px-2.5 py-1.5 hover:border-white/20"
@@ -132,7 +139,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <kbd className="hidden sm:inline text-[10px] text-white/30 border border-white/10 rounded px-1">⌘K</kbd>
             </button>
 
-            {/* Notification bell */}
             <div className="relative">
               <button
                 className="relative text-white/60 hover:text-white transition-colors"
@@ -181,8 +187,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
 
-        {/* Page content */}
-        <div className="flex-1 overflow-y-auto">
+        {/* Page content — min-h-0 allows flex children to define their own scroll */}
+        <div className="flex-1 min-h-0 overflow-auto">
           {children}
         </div>
       </main>

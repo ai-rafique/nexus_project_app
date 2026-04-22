@@ -5,6 +5,9 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
 import Dashboard from '@/pages/Dashboard';
+import Profile from '@/pages/Profile';
+import Settings from '@/pages/Settings';
+import AdminUsers from '@/pages/admin/Users';
 import ProjectHome from '@/pages/projects/ProjectHome';
 import Requirements from '@/pages/projects/Requirements';
 import RequirementDetail from '@/pages/projects/RequirementDetail';
@@ -15,7 +18,6 @@ import Tests from '@/pages/projects/Tests';
 import Fat from '@/pages/projects/Fat';
 import VerificationMatrix from '@/pages/projects/VerificationMatrix';
 import AuditTrail from '@/pages/projects/AuditTrail';
-import Settings from '@/pages/Settings';
 import { Toaster } from '@/components/Toaster';
 
 const queryClient = new QueryClient({
@@ -32,9 +34,11 @@ export default function App() {
             <Route path="/login"    element={<Login />} />
             <Route path="/register" element={<Register />} />
 
-            {/* Protected */}
+            {/* Protected — all authenticated users */}
             <Route element={<ProtectedRoute />}>
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/profile"   element={<Profile />} />
+              <Route path="/settings"  element={<Settings />} />
               <Route path="/projects/:id"                              element={<ProjectHome />} />
               <Route path="/projects/:id/requirements"                 element={<Requirements />} />
               <Route path="/projects/:id/requirements/:reqId"          element={<RequirementDetail />} />
@@ -46,12 +50,11 @@ export default function App() {
               <Route path="/projects/:id/verification"                 element={<VerificationMatrix />} />
               <Route path="/projects/:id/audit"                        element={<AuditTrail />} />
               <Route path="/projects/:id/*"                            element={<ProjectHome />} />
-              <Route path="/settings"                                  element={<Settings />} />
             </Route>
 
-            {/* Admin */}
+            {/* Super Admin */}
             <Route element={<ProtectedRoute allowedRoles={['super_admin']} />}>
-              <Route path="/admin/*" element={<Dashboard />} />
+              <Route path="/admin/users" element={<AdminUsers />} />
             </Route>
 
             <Route path="/" element={<Navigate to="/dashboard" replace />} />

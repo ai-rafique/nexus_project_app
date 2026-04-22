@@ -41,6 +41,17 @@ function useBreadcrumbs(): Crumb[] {
     return crumbs;
   }
 
+  if (segments[0] === 'profile') {
+    crumbs.push({ label: 'My Profile' });
+    return crumbs;
+  }
+
+  if (segments[0] === 'admin') {
+    crumbs.push({ label: 'Admin' });
+    if (segments[1] === 'users') crumbs.push({ label: 'User Management' });
+    return crumbs;
+  }
+
   if (segments[0] === 'projects') {
     crumbs.push({ label: 'Projects', to: '/dashboard' });
 

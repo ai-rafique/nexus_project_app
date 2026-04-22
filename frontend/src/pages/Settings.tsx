@@ -1,15 +1,19 @@
 import { useState, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Building2, Image, Upload, Trash2 } from 'lucide-react';
+import { AppShell } from '@/components/layout/AppShell';
 import { settingsApi } from '@/api/settings';
+import { toast } from '@/lib/toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
 export default function Settings() {
   const qc = useQueryClient();
   const fileRef = useRef<HTMLInputElement>(null);
   const [companyName, setCompanyName] = useState('');
-  const [saved, setSaved] = useState(false);
+  const [logoBust, setLogoBust] = useState(Date.now());
 
   const { data: settings, isLoading } = useQuery({
     queryKey: ['settings'],
@@ -24,92 +28,141 @@ export default function Settings() {
     mutationFn: () => settingsApi.update({ companyName }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['settings'] });
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
+      toast.success('Settings saved');
     },
+    onError: () => toast.error('Failed to save settings'),
   });
 
   const logoMut = useMutation({
     mutationFn: (file: File) => settingsApi.uploadLogo(file),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['settings'] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['settings'] });
+      setLogoBust(Date.now());
+      toast.success('Logo uploaded');
+    },
+    onError: () => toast.error('Failed to upload logo'),
   });
 
   const deleteLogoMut = useMutation({
     mutationFn: settingsApi.deleteLogo,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['settings'] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['settings'] });
+      setLogoBust(Date.now());
+      toast.success('Logo removed');
+    },
+    onError: () => toast.error('Failed to remove logo'),
   });
 
-  if (isLoading) return <div className="p-6 text-gray-400">Loading…</div>;
-
   return (
-    <div className="p-6 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold text-white mb-8">System Settings</h1>
+    <AppShell>
+      <div className="p-8 max-w-2xl">
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold text-foreground">System Settings</h1>
+          <p className="text-sm text-muted-foreground mt-1">Configure your organisation's workspace</p>
+        </div>
 
-      <div className="bg-[#16213e] border border-[#0f3460]/40 rounded-lg p-6 space-y-6">
-        {/* Company name */}
-        <div>
-          <Label className="text-gray-300">Company Name</Label>
-          <div className="flex gap-3 mt-2">
-            <Input
-              className="bg-[#1a1a2e] border-[#0f3460] text-white flex-1"
-              value={companyName}
-              onChange={(e) => setCompanyName(e.target.value)}
-            />
-            <Button
-              onClick={() => updateMut.mutate()}
-              disabled={updateMut.isPending || companyName === settings?.companyName}
-            >
-              {saved ? 'Saved!' : 'Save'}
-            </Button>
+        {isLoading ? (
+          <div className="space-y-4">
+            <div className="h-36 bg-white border rounded-lg animate-pulse" />
+            <div className="h-48 bg-white border rounded-lg animate-pulse" />
           </div>
-        </div>
+        ) : (
+          <div className="space-y-6">
+            {/* Company Name */}
+            <Card>
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2">
+                  <Building2 className="h-4 w-4 text-muted-foreground" />
+                  <CardTitle className="text-base">Company Information</CardTitle>
+                </div>
+                <CardDescription>Used in PDF document headers and exports</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex gap-3">
+                  <div className="flex-1">
+                    <Label htmlFor="company-name">Company Name</Label>
+                    <Input
+                      id="company-name"
+                      className="mt-1.5"
+                      value={companyName}
+                      onChange={(e) => setCompanyName(e.target.value)}
+                      placeholder="e.g. Acme Engineering Ltd"
+                    />
+                  </div>
+                  <div className="flex items-end">
+                    <Button
+                      onClick={() => updateMut.mutate()}
+                      disabled={updateMut.isPending || companyName === settings?.companyName}
+                    >
+                      {updateMut.isPending ? 'Saving…' : 'Save'}
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
-        {/* Logo */}
-        <div>
-          <Label className="text-gray-300">Company Logo</Label>
-          <p className="text-xs text-gray-500 mb-3">Used in PDF exports. PNG, JPEG, or SVG, max 2 MB.</p>
+            {/* Company Logo */}
+            <Card>
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2">
+                  <Image className="h-4 w-4 text-muted-foreground" />
+                  <CardTitle className="text-base">Company Logo</CardTitle>
+                </div>
+                <CardDescription>PNG, JPEG, or SVG — max 2 MB. Appears on PDF exports.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {settings?.hasLogo ? (
+                  <div className="flex items-center gap-4 p-3 bg-muted rounded-lg mb-4">
+                    <img
+                      src={settingsApi.logoUrl(logoBust)}
+                      alt="Company logo"
+                      className="h-14 max-w-[160px] object-contain"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground">Logo uploaded</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{settings.logoMimeType ?? 'image'}</p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                      onClick={() => deleteLogoMut.mutate()}
+                      disabled={deleteLogoMut.isPending}
+                    >
+                      <Trash2 className="h-3.5 w-3.5 mr-1.5" />
+                      Remove
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center h-24 border-2 border-dashed border-border rounded-lg mb-4 text-muted-foreground text-sm">
+                    No logo uploaded
+                  </div>
+                )}
 
-          {settings?.logoPath ? (
-            <div className="flex items-center gap-4">
-              <img
-                src={settingsApi.logoUrl()}
-                alt="Company logo"
-                className="h-12 object-contain bg-white rounded p-1"
-              />
-              <Button
-                variant="ghost"
-                className="text-red-400 hover:text-red-300"
-                onClick={() => deleteLogoMut.mutate()}
-                disabled={deleteLogoMut.isPending}
-              >
-                Remove Logo
-              </Button>
-            </div>
-          ) : (
-            <p className="text-sm text-gray-500">No logo set.</p>
-          )}
-
-          <input
-            ref={fileRef}
-            type="file"
-            accept="image/png,image/jpeg,image/svg+xml"
-            className="hidden"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) logoMut.mutate(file);
-              e.target.value = '';
-            }}
-          />
-          <Button
-            variant="ghost"
-            className="mt-3"
-            onClick={() => fileRef.current?.click()}
-            disabled={logoMut.isPending}
-          >
-            {logoMut.isPending ? 'Uploading…' : settings?.logoPath ? 'Replace Logo' : 'Upload Logo'}
-          </Button>
-        </div>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/svg+xml"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) logoMut.mutate(file);
+                    e.target.value = '';
+                  }}
+                />
+                <Button
+                  variant="outline"
+                  onClick={() => fileRef.current?.click()}
+                  disabled={logoMut.isPending}
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  {logoMut.isPending ? 'Uploading…' : settings?.hasLogo ? 'Replace Logo' : 'Upload Logo'}
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
-    </div>
+    </AppShell>
   );
 }

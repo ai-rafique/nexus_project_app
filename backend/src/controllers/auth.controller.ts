@@ -34,6 +34,17 @@ const totpVerifySchema = z.object({
   secret: z.string(),
 });
 
+const updateProfileSchema = z.object({
+  firstName: z.string().min(1).max(50).optional(),
+  lastName:  z.string().min(1).max(50).optional(),
+  email:     z.string().email().optional(),
+});
+
+const updatePasswordSchema = z.object({
+  currentPassword: z.string(),
+  newPassword:     z.string().min(8),
+});
+
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
 function signAccessToken(userId: string, email: string, role: string): string {
@@ -69,7 +80,7 @@ function decryptTotp(encrypted: string): string {
   return decrypted.toString('utf8');
 }
 
-// ── Controllers ────────────────────────────────────────────────────────────────
+// ── Auth Controllers ───────────────────────────────────────────────────────────
 
 export async function register(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
@@ -81,12 +92,17 @@ export async function register(req: Request, res: Response, next: NextFunction):
       return;
     }
 
+    // First registered user becomes super_admin
+    const userCount = await User.countDocuments();
+    const globalRole = userCount === 0 ? 'super_admin' : 'member';
+
     const passwordHash = await bcrypt.hash(body.password, 12);
     const user = await User.create({
       email: body.email,
       passwordHash,
       firstName: body.firstName,
       lastName: body.lastName,
+      globalRole,
     });
 
     const accessToken = signAccessToken(user.id, user.email, user.globalRole);
@@ -102,7 +118,7 @@ export async function register(req: Request, res: Response, next: NextFunction):
     res.status(201).json({
       accessToken,
       refreshToken: refreshRaw,
-      user: { id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName, globalRole: user.globalRole },
+      user: { id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName, globalRole: user.globalRole, hasAvatar: false, isTotpEnabled: false },
     });
   } catch (err) {
     next(err);
@@ -159,7 +175,7 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
     res.json({
       accessToken,
       refreshToken: refreshRaw,
-      user: { id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName, globalRole: user.globalRole },
+      user: { id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName, globalRole: user.globalRole, hasAvatar: !!(user.avatarData), isTotpEnabled: user.isTotpEnabled },
     });
   } catch (err) {
     next(err);
@@ -185,7 +201,6 @@ export async function refresh(req: Request, res: Response, next: NextFunction): 
       return;
     }
 
-    // Token rotation — delete old, issue new
     await RefreshToken.deleteOne({ _id: stored._id });
 
     const user = await User.findById(payload.sub);
@@ -220,6 +235,24 @@ export async function logout(req: Request, res: Response, next: NextFunction): P
   }
 }
 
+export async function me(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const user = await User.findById(req.user!.sub).select('email firstName lastName globalRole isTotpEnabled avatarData');
+    if (!user) { res.status(404).json({ message: 'User not found' }); return; }
+    res.json({
+      _id: user._id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      globalRole: user.globalRole,
+      isTotpEnabled: user.isTotpEnabled,
+      hasAvatar: !!(user.avatarData),
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function setup2fa(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const user = await User.findById(req.user!.sub);
@@ -227,21 +260,9 @@ export async function setup2fa(req: Request, res: Response, next: NextFunction):
       res.status(404).json({ message: 'User not found' });
       return;
     }
-
     const secretObj = speakeasy.generateSecret({ name: `NEXUS (${user.email})`, length: 20 });
     const dataUrl = await qrcode.toDataURL(secretObj.otpauth_url!);
-
     res.json({ secret: secretObj.base32, qrCode: dataUrl });
-  } catch (err) {
-    next(err);
-  }
-}
-
-export async function me(req: Request, res: Response, next: NextFunction): Promise<void> {
-  try {
-    const user = await User.findById(req.user!.sub).select('-passwordHash -totpSecret');
-    if (!user) { res.status(404).json({ message: 'User not found' }); return; }
-    res.json({ _id: user._id, email: user.email, firstName: user.firstName, lastName: user.lastName, globalRole: user.globalRole });
   } catch (err) {
     next(err);
   }
@@ -250,24 +271,107 @@ export async function me(req: Request, res: Response, next: NextFunction): Promi
 export async function verify2fa(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const { token, secret } = totpVerifySchema.parse(req.body);
-
     const verified = speakeasy.totp.verify({ secret, encoding: 'base32', token, window: 1 });
     if (!verified) {
       res.status(400).json({ message: 'Invalid TOTP code' });
       return;
     }
-
     const user = await User.findById(req.user!.sub);
     if (!user) {
       res.status(404).json({ message: 'User not found' });
       return;
     }
-
     user.totpSecret = encryptTotp(secret);
     user.isTotpEnabled = true;
     await user.save();
-
     res.json({ message: '2FA enabled successfully' });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// ── Profile Controllers ────────────────────────────────────────────────────────
+
+export async function updateProfile(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const body = updateProfileSchema.parse(req.body);
+    const user = await User.findById(req.user!.sub);
+    if (!user) { res.status(404).json({ message: 'User not found' }); return; }
+
+    if (body.email && body.email !== user.email) {
+      const existing = await User.findOne({ email: body.email });
+      if (existing) { res.status(409).json({ message: 'Email already in use' }); return; }
+      user.email = body.email;
+    }
+    if (body.firstName) user.firstName = body.firstName;
+    if (body.lastName)  user.lastName  = body.lastName;
+    await user.save();
+
+    res.json({
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      globalRole: user.globalRole,
+      hasAvatar: !!(user.avatarData),
+      isTotpEnabled: user.isTotpEnabled,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function updatePassword(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const { currentPassword, newPassword } = updatePasswordSchema.parse(req.body);
+    const user = await User.findById(req.user!.sub);
+    if (!user) { res.status(404).json({ message: 'User not found' }); return; }
+
+    const valid = await bcrypt.compare(currentPassword, user.passwordHash);
+    if (!valid) { res.status(400).json({ message: 'Current password is incorrect' }); return; }
+
+    user.passwordHash = await bcrypt.hash(newPassword, 12);
+    await user.save();
+    res.json({ message: 'Password updated successfully' });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function uploadAvatar(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    if (!req.file) { res.status(400).json({ message: 'No file uploaded' }); return; }
+    const user = await User.findById(req.user!.sub);
+    if (!user) { res.status(404).json({ message: 'User not found' }); return; }
+    user.avatarData = req.file.buffer;
+    user.avatarMimeType = req.file.mimetype;
+    await user.save();
+    res.json({ message: 'Avatar uploaded', hasAvatar: true });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function deleteAvatar(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const user = await User.findById(req.user!.sub);
+    if (!user) { res.status(404).json({ message: 'User not found' }); return; }
+    user.avatarData = undefined;
+    user.avatarMimeType = undefined;
+    await user.save();
+    res.json({ message: 'Avatar removed' });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getMyAvatar(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const user = await User.findById(req.user!.sub).select('avatarData avatarMimeType');
+    if (!user?.avatarData) { res.status(404).json({ message: 'No avatar set' }); return; }
+    res.set('Content-Type', user.avatarMimeType ?? 'image/jpeg');
+    res.set('Cache-Control', 'no-cache');
+    res.send(user.avatarData);
   } catch (err) {
     next(err);
   }

@@ -8,7 +8,8 @@ export interface IUser extends Document {
   passwordHash: string;
   firstName: string;
   lastName: string;
-  avatar?: string;
+  avatarData?: Buffer;
+  avatarMimeType?: string;
   totpSecret?: string;
   isTotpEnabled: boolean;
   globalRole: GlobalRole;
@@ -24,7 +25,8 @@ const userSchema = new Schema<IUser>(
     passwordHash: { type: String, required: true },
     firstName: { type: String, required: true, trim: true },
     lastName: { type: String, required: true, trim: true },
-    avatar: { type: String },
+    avatarData: { type: Buffer },
+    avatarMimeType: { type: String },
     totpSecret: { type: String },
     isTotpEnabled: { type: Boolean, default: false },
     globalRole: { type: String, enum: ['super_admin', 'member'], default: 'member' },

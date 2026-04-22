@@ -3,7 +3,7 @@ import { apiClient } from './client';
 export interface Settings {
   _id: string;
   companyName: string;
-  logoPath?: string;
+  hasLogo: boolean;
   logoMimeType?: string;
   updatedAt: string;
 }
@@ -20,5 +20,5 @@ export const settingsApi = {
     }).then((r) => r.data);
   },
   deleteLogo: () => apiClient.delete('/settings/logo').then((r) => r.data),
-  logoUrl: () => '/api/settings/logo',
+  logoUrl: (bust?: number) => `/api/settings/logo${bust ? `?t=${bust}` : ''}`,
 };

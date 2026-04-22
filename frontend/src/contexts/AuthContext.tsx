@@ -7,6 +7,8 @@ export interface AuthUser {
   firstName: string;
   lastName: string;
   globalRole: string;
+  hasAvatar?: boolean;
+  isTotpEnabled?: boolean;
 }
 
 interface AuthState {
@@ -19,6 +21,8 @@ interface AuthContextValue extends AuthState {
   login: (email: string, password: string, totpCode?: string) => Promise<{ requireTotp?: boolean }>;
   register: (data: RegisterData) => Promise<void>;
   logout: () => Promise<void>;
+  refreshUser: () => Promise<void>;
+  setUser: (u: AuthUser) => void;
 }
 
 interface RegisterData {
@@ -37,7 +41,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isLoading: true,
   });
 
-  // Rehydrate session from storage on mount
   useEffect(() => {
     const stored = localStorage.getItem('nexus_user');
     const token = localStorage.getItem('accessToken');
@@ -56,9 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = useCallback(
     async (email: string, password: string, totpCode?: string) => {
       const { data } = await apiClient.post('/auth/login', { email, password, totpCode });
-
       if (data.requireTotp) return { requireTotp: true };
-
       localStorage.setItem('accessToken', data.accessToken);
       localStorage.setItem('refreshToken', data.refreshToken);
       localStorage.setItem('nexus_user', JSON.stringify(data.user));
@@ -85,8 +86,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setState({ user: null, isAuthenticated: false, isLoading: false });
   }, []);
 
+  const refreshUser = useCallback(async () => {
+    try {
+      const { data } = await apiClient.get('/auth/me');
+      const updated: AuthUser = {
+        id: data._id,
+        email: data.email,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        globalRole: data.globalRole,
+        hasAvatar: data.hasAvatar,
+        isTotpEnabled: data.isTotpEnabled,
+      };
+      localStorage.setItem('nexus_user', JSON.stringify(updated));
+      setState((s) => ({ ...s, user: updated }));
+    } catch {
+      // silently fail — stale user data is acceptable
+    }
+  }, []);
+
+  const setUser = useCallback((u: AuthUser) => {
+    localStorage.setItem('nexus_user', JSON.stringify(u));
+    setState((s) => ({ ...s, user: u }));
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ ...state, login, register, logout }}>
+    <AuthContext.Provider value={{ ...state, login, register, logout, refreshUser, setUser }}>
       {children}
     </AuthContext.Provider>
   );

@@ -3,7 +3,6 @@ import helmet from 'helmet';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { env } from './config/env';
-import path from 'path';
 import authRoutes from './routes/auth';
 import projectRoutes from './routes/projects';
 import requirementRoutes from './routes/requirements';
@@ -16,6 +15,7 @@ import fatRoutes from './routes/fat';
 import verificationRoutes from './routes/verification';
 import auditRoutes, { getGlobalAudit } from './routes/audit';
 import searchRoutes from './routes/search';
+import userRoutes from './routes/users';
 import { requireAuth } from './middleware/auth';
 import { errorHandler, notFound } from './middleware/errorHandler';
 
@@ -48,9 +48,9 @@ app.use('/api/projects/:projectId/verification', verificationRoutes);
 app.use('/api/projects/:projectId/audit', auditRoutes);
 app.use('/api/audit', requireAuth, getGlobalAudit);
 app.use('/api/search', searchRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/settings', settingsRoutes);
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // ── Error handling ─────────────────────────────────────────────────────────────
 app.use(notFound);

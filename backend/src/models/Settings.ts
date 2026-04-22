@@ -2,7 +2,7 @@ import { Schema, model, Document } from 'mongoose';
 
 export interface ISettings extends Document {
   companyName:   string;
-  logoPath?:     string;
+  logoData?:     Buffer;
   logoMimeType?: string;
   updatedAt:     Date;
 }
@@ -10,7 +10,7 @@ export interface ISettings extends Document {
 const settingsSchema = new Schema<ISettings>(
   {
     companyName:   { type: String, default: 'NEXUS' },
-    logoPath:      { type: String },
+    logoData:      { type: Buffer },
     logoMimeType:  { type: String },
   },
   { timestamps: true },
