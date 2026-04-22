@@ -162,7 +162,18 @@ The `<Toaster />` component in `App.tsx` subscribes and renders.
 - **Production Docker:** multi-stage `Dockerfile.prod` (tsc → dist, npm ci --omit=dev), frontend (vite build → nginx), `docker-compose.prod.yml` with CPU/memory limits
 - **Tests:** `backend/tests/phase5.mjs` — 35/35
 
-### Phase 6 — UX Polish: Dashboard Analytics, Breadcrumbs, Global Search (current)
+### Phase 7 — UX Overhaul: Navigation, Profile, Admin, Blob Storage (commit 9766db2)
+- **DocumentEditor in AppShell:** wrapped in `<AppShell>` — sidebar nav always visible; inner two-column layout uses `h-full overflow-hidden`; reviewer dialog now shows project members as checkboxes (not raw IDs)
+- **Settings redesign:** wrapped in AppShell, semantic card layout matching Dashboard, logo display fixed with cache-bust timestamp
+- **MongoDB blob storage:** logo and avatar stored as `Buffer` in MongoDB (no filesystem); `multer.memoryStorage()` on both settings and auth routes; `logoPath` replaced by `hasLogo: boolean` in Settings response
+- **Profile page** (`/profile`): edit name/email, change password (current+new+confirm), upload/delete avatar; `refreshUser()` added to AuthContext to sync localStorage after profile changes
+- **Super admin user management** (`/admin/users`): list/search all users, change globalRole, activate/deactivate accounts; conditionally shown in sidebar for `super_admin`
+- **First-user bootstrap:** first user to register on empty database automatically gets `globalRole: 'super_admin'`
+- **Add Member dialog in ProjectHome:** search by exact email (`GET /api/users/by-email`), select role, calls existing `POST /api/projects/:id/members`
+- **AppShell improvements:** user section is now a clickable link to `/profile` with avatar display; admin nav item for super_admin; `min-h-0 overflow-auto` on content area for proper scroll isolation
+- **AuthUser type:** extended with `hasAvatar?: boolean` and `isTotpEnabled?: boolean`; `me` endpoint returns these fields
+
+### Phase 6 — UX Polish: Dashboard Analytics, Breadcrumbs, Global Search (commit f382e38)
 - **Backend:** `GET /api/search?q=` — searches requirements (title/reqId), documents (title), tests (title/testId) across user-accessible projects; regex-escaped query; 6+4+4 result limits per type
 - **Toast system:** pub/sub emitter in `lib/toast.ts`, `<Toaster />` component using Radix `@radix-ui/react-toast`, wired into mutations across Requirements, Documents, Dashboard, VerificationMatrix
 - **Breadcrumb:** `components/Breadcrumb.tsx` reads `useLocation()` + `useParams()`, fetches project name from React Query cache, renders clickable path in AppShell topbar
@@ -249,6 +260,19 @@ PATCH  /notifications/read-all
 GET    /settings
 PATCH  /settings
 POST   /settings/logo
+DELETE /settings/logo
+GET    /settings/logo
+
+GET    /users                (super_admin) — paginated + search
+GET    /users/by-email?email= (any auth)  — exact email lookup for project member add
+GET    /users/:id/avatar     — serve user avatar blob (any auth)
+PATCH  /users/:id            (super_admin) — update globalRole / isActive
+
+PATCH  /auth/profile         — update own firstName, lastName, email
+PATCH  /auth/password        — change password (requires current password)
+POST   /auth/avatar          — upload own avatar blob
+DELETE /auth/avatar          — remove own avatar
+GET    /auth/avatar          — serve own avatar blob
 ```
 
 ### Frontend routes
@@ -256,6 +280,9 @@ POST   /settings/logo
 /login
 /register
 /dashboard
+/profile
+/settings
+/admin/users
 /projects/:id
 /projects/:id/requirements
 /projects/:id/requirements/:reqId
@@ -266,7 +293,6 @@ POST   /settings/logo
 /projects/:id/fat
 /projects/:id/verification
 /projects/:id/audit
-/settings
 ```
 
 ---
